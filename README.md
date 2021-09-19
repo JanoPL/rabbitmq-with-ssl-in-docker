@@ -12,7 +12,6 @@ the image's build. A client certificate is generated when a container is created
 It is recommended to mount a volume so that the client certificate can be reached from the
 host system. Client certificates are generated under the **/home/client** directory.
 
-
 ## To build this image
 
 ```
@@ -21,6 +20,13 @@ cd tests && ./build.sh
 
 The generated image contains SSL certificates for the server side.
 
+## To build this image with custom domain
+
+```
+docker build --build-arg arg_domain=<domain> -t [<user>/]<image name>[:<tag>] .
+```
+
+By default, the certificate is generated with the host name
 
 ## To run this image
 
@@ -35,12 +41,10 @@ We also share a local directory with the container, to retrieve the client certi
 You can verify client certificates were generated with `ls /tmp/docker-test`. This directory contains
 a key store and a trust store, both in the PKCS12 format.
 
-
 ## To stop the container
 
 `docker stop <container-id>` will stop the container.  
 If you kept the `--rm` option, it will be deleted directly.
-
 
 ## To run quick tests
 
@@ -48,23 +52,21 @@ If you kept the `--rm` option, it will be deleted directly.
 cd tests && ./test.sh
 ```
 
-
 ## To diagnose troubles
 
-* Verify the client certificates were correctly generated: `ls -l /tmp/docker-test`
-* Inspect the container: `docker exec -ti <container-id> /bin/bash`
-* Check the logs: `docker logs <container-id>`
-* Verify the SSL connection works: `openssl s_client -connect 127.0.0.1:12000 -key /tmp/docker-test/key.pem`  
-This last command will result in `Verify return code: 19 (self signed certificate in certificate chain)`, which is normal.
-We should specify the **-CApath**, which is inside the Docker container. This test is enough to verify SSL is enabled and
-the server is reachable from the host system.
-
+- Verify the client certificates were correctly generated: `ls -l /tmp/docker-test`
+- Inspect the container: `docker exec -ti <container-id> /bin/bash`
+- Check the logs: `docker logs <container-id>`
+- Verify the SSL connection works: `openssl s_client -connect 127.0.0.1:12000 -key /tmp/docker-test/key.pem`  
+  This last command will result in `Verify return code: 19 (self signed certificate in certificate chain)`, which is normal.
+  We should specify the **-CApath**, which is inside the Docker container. This test is enough to verify SSL is enabled and
+  the server is reachable from the host system.
 
 ## Quick overview of the content
 
-* **Dockerfile**: the file with instructions to create a Docker image.
-* **rabbitmq.config**: the configuration file for RabbitMQ.
-* **openssl.cnf**: a configuration file used during certificates creation.
-* **prepare-server.sh**: a script during the generation of the image and that deals with server certificates.
-* **generate-client-keys.sh**: a script that is run by default when a container is created from this image.
-It deals with the generation of client certificates.
+- **Dockerfile**: the file with instructions to create a Docker image.
+- **rabbitmq.config**: the configuration file for RabbitMQ.
+- **openssl.cnf**: a configuration file used during certificates creation.
+- **prepare-server.sh**: a script during the generation of the image and that deals with server certificates.
+- **generate-client-keys.sh**: a script that is run by default when a container is created from this image.
+  It deals with the generation of client certificates.
