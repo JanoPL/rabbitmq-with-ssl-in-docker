@@ -2,15 +2,14 @@
 
 > RabbitMQ and SSL made easy for tests.
 
-[![Build Status](https://travis-ci.org/roboconf/rabbitmq-with-ssl-in-docker.svg?branch=master)](https://travis-ci.org/roboconf/rabbitmq-with-ssl-in-docker)
-[![License](https://img.shields.io/hexpm/l/plug.svg)](http://www.apache.org/licenses/LICENSE-2.0)
-
-This repository aims at building a RabbitMQ container with SSL enabled.  
+This repository aims at building a RabbitMQ container with SSL enabled using TLV v1.3.
 Generation of the server certificates, as well as server configuration, are performed during
 the image's build. A client certificate is generated when a container is created from this image.
 
 It is recommended to mount a volume so that the client certificate can be reached from the
-host system. Client certificates are generated under the **/home/client** directory.
+host system. Client certificates are generated under the **/rbmq/client** directory.
+
+The certificates have been moved to the path /rbmq/{ca, server, client}
 
 ## To build this image
 
@@ -33,7 +32,7 @@ By default, the certificate is generated with the host name
 ```
 mkdir -p /tmp/docker-test \
 	&& rm -rf /tmp/docker-test/* \
-	&& docker run -d --rm -p 12000:5671 -v /tmp/docker-test:/home/client rabbitmq-with-ssl:latest
+	&& docker run -d --rm -p 12000:5671 -v /tmp/docker-test:/rbmq/client rabbitmq-with-ssl:latest
 ```
 
 Here, we bind the port 5671 from the container on the 12000 port on the local host.  
