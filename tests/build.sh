@@ -2,4 +2,4 @@
 
 IMAGE_NAME="rabbitmq-with-ssl"
 
-docker build --no-cache=true -t ${IMAGE_NAME} ..
+docker build --build-arg var_domain=${IMAGE_NAME} --no-cache=true -t ${IMAGE_NAME} ..
