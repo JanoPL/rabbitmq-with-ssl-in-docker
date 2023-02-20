@@ -9,11 +9,11 @@ the image's build. A client certificate is generated when a container is created
 It is recommended to mount a volume so that the client certificate can be reached from the
 host system. Client certificates are generated under the **/rbmq/client** directory.
 
-The certificates have been moved to the path /rbmq/{ca, server, client}
+The certificates have been moved to the path /tmp/{certs, server, client}
 
 ## To build this image
 
-```
+```shell
 cd tests && ./build.sh
 ```
 
@@ -21,11 +21,17 @@ The generated image contains SSL certificates for the server side.
 
 ## To build this image with custom domain
 
-```
+```shell
 docker build --build-arg arg_domain=<domain> -t [<user>/]<image name>[:<tag>] .
 ```
 
 By default, the certificate is generated with the host name
+
+## To build this image with docker compose 
+
+```shell
+docker compose build 
+```
 
 ## To run this image
 
@@ -40,10 +46,23 @@ We also share a local directory with the container, to retrieve the client certi
 You can verify client certificates were generated with `ls /tmp/docker-test`. This directory contains
 a key store and a trust store, both in the PKCS12 format.
 
+## To run this image with docker compose 
+
+```shell
+docker compose up -d 
+```
+
+default exposed ports: 
+- amqp: 5672
+- amqps: 5671
+- http: 15672
+
 ## To stop the container
 
 `docker stop <container-id>` will stop the container.  
 If you kept the `--rm` option, it will be deleted directly.
+
+```docker compose down ``` will stop containers using docker compose
 
 ## To run quick tests
 
@@ -64,8 +83,8 @@ cd tests && ./test.sh
 ## Quick overview of the content
 
 - **Dockerfile**: the file with instructions to create a Docker image.
-- **rabbitmq.config**: the configuration file for RabbitMQ.
-- **openssl.cnf**: a configuration file used during certificates creation.
-- **prepare-server.sh**: a script during the generation of the image and that deals with server certificates.
-- **generate-client-keys.sh**: a script that is run by default when a container is created from this image.
+- **config/rabbitmq.config**: the configuration file for RabbitMQ.
+- **config/openssl.cnf**: a configuration file used during certificates creation.
+- **scripts/prepare-server.sh**: a script during the generation of the image and that deals with server certificates.
+- **scripts/generate-client-keys.sh**: a script that is run by default when a container is created from this image.
   It deals with the generation of client certificates.

@@ -1,30 +1,37 @@
-FROM rabbitmq:3.9-management
+FROM rabbitmq:3.11-management
 
-ARG arg_domain=testdomain.local
-ENV DOMAIN=${arg_domain}
+ARG ORG_DOMAIN=testdomain.local
+ENV DOMAIN=${ORG_DOMAIN}
 
-RUN apt-get update \
-	&& apt-get install openssl -y  \
-	&& rm -rf /var/lib/apt/lists/* \
-	&& mkdir -p /rbmq/testca/certs \
-	&& mkdir -p /rbmq/testca/private \
-	&& chmod 700 /rbmq/testca/private \
-	&& echo 01 > /rbmq/testca/serial \
-	&& touch /rbmq/testca/index.txt
+LABEL version = "1.0"
+LABEL description = "Rabbitmq with ssl connection"
+
+RUN apt-get update
+RUN apt-get install openssl -y
+
+RUN mkdir -p /tmp\
+    && mkdir -p /tmp/certs \
+    && mkdir -p /tmp/certs/private \
+    && mkdir -p /tmp/server \
+    && mkdir -p /tmp/client \
+
+RUN chmod 700 /tmp/certs/private
+RUN echo 01 > /tmp/certs/serial
+RUN touch /tmp/certs/index.txt
 
 RUN rabbitmq-plugins enable rabbitmq_auth_mechanism_ssl
 
-#COPY rabbitmq.config /etc/rabbitmq/rabbitmq.config
-COPY rabbitmq.conf /etc/rabbitmq/rabbitmq.conf
-COPY openssl.cnf /rbmq/testca
-COPY prepare-server.sh generate-client-keys.sh /rbmq/
+COPY config/rabbitmq.conf /etc/rabbitmq/rabbitmq.conf
+COPY config/openssl.cnf /tmp/openssl.cnf
+COPY scripts/prepare-server.sh /tmp/prepare-server.sh
+COPY scripts/generate-client-keys.sh /tmp/generate-client-keys.sh
 
-RUN mkdir -p /rbmq/server \
-	&& mkdir -p /rbmq/client \
-	&& chmod +x /rbmq/prepare-server.sh /rbmq/generate-client-keys.sh
+RUN chmod +x /tmp/prepare-server.sh
+RUN chmod +x /tmp/generate-client-keys.sh
 
-RUN /bin/bash /rbmq/prepare-server.sh 
+RUN /tmp/prepare-server.sh
 
-RUN /bin/bash /rbmq/generate-client-keys.sh
-RUN chown root:rabbitmq /rbmq/server/key.pem && chmod 640 /rbmq/server/key.pem
+RUN /tmp/generate-client-keys.sh
+
+RUN chown root:rabbitmq /tmp/server/key.pem && chmod 640 /tmp/server/key.pem
 #sleep infinity

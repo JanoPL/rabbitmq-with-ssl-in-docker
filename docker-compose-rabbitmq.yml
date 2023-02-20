@@ -1,0 +1,25 @@
+version: '3'
+
+networks:
+  rabbitmq:
+    driver: bridge
+
+volumes:
+  rabbitmq-data:
+
+services:
+  rabbitmq:
+    container_name: ${COMPOSE_PROJECT_NAME}-rabbitmq
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq/mnesia/
+    ports:
+      - "5671:5671"
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - rabbitmq
